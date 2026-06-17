@@ -1,31 +1,28 @@
 """
 Converts raw frames (numpy uint8) and raw audio (float32 numpy)
 into the tensor formats expected by VideoMAE and AST.
-
-This lives separately from the encoder so the pipeline can preprocess
-on CPU while the GPU encodes the previous batch.
 """
 
 import numpy as np
 import torch
 from typing import List
-from transformers import AutoFeatureExtractor, ASTFeatureExtractor
+from transformers import AutoImageProcessor, ASTFeatureExtractor
 from PIL import Image
 
 
 # ── Lazy singletons so we only instantiate once per process ──────────────────
 
-_videomae_extractor = None
+_videomae_processor = None
 _ast_extractor = None
 
 
-def get_videomae_extractor():
-    global _videomae_extractor
-    if _videomae_extractor is None:
-        _videomae_extractor = AutoFeatureExtractor.from_pretrained(
+def get_videomae_processor():
+    global _videomae_processor
+    if _videomae_processor is None:
+        _videomae_processor = AutoImageProcessor.from_pretrained(
             "MCG-NJU/videomae-small-finetuned-kinetics"
         )
-    return _videomae_extractor
+    return _videomae_processor
 
 
 def get_ast_extractor():
@@ -49,15 +46,14 @@ def preprocess_frames(
 
     raw_frames: list of (H, W, 3) uint8 RGB numpy arrays.
     """
-    extractor = get_videomae_extractor()
+    processor = get_videomae_processor()
 
     sampled = _sample_evenly(raw_frames, num_frames)
-
-    # Convert to PIL for the HF extractor
     pil_frames = [Image.fromarray(f) for f in sampled]
 
-    # The VideoMAE feature extractor returns pixel_values: (1, T, C, H, W)
-    inputs = extractor(images=pil_frames, return_tensors="pt")
+    # VideoMAEImageProcessor expects a LIST of frames (a single "video")
+    # and returns pixel_values of shape (1, T, C, H, W)
+    inputs = processor(pil_frames, return_tensors="pt")
     return inputs["pixel_values"]  # (1, T, C, H, W)
 
 
@@ -67,9 +63,7 @@ def preprocess_audio(
 ) -> torch.Tensor:
     """
     Convert a mono float32 audio array into the log-mel spectrogram
-    expected by AST and return a (1, mel_bins, time_frames) tensor.
-
-    audio_segment: (samples,) float32.
+    expected by AST and return a (1, time_frames, mel_bins) tensor.
     """
     extractor = get_ast_extractor()
 
@@ -78,16 +72,13 @@ def preprocess_audio(
         sampling_rate=sample_rate,
         return_tensors="pt",
     )
-    # AST extractor returns input_values: (1, time_frames, mel_bins)
-    # The ASTModel expects (batch, time, mel) so we keep it as-is
-    return inputs["input_values"]  # (1, time_frames, mel_bins)
+    return inputs["input_values"]
 
 
 # ── Helper ────────────────────────────────────────────────────────────────────
 
 def _sample_evenly(frames: List[np.ndarray], n: int) -> List[np.ndarray]:
     if len(frames) <= n:
-        # Pad by repeating last frame
         return frames + [frames[-1]] * (n - len(frames))
     indices = np.linspace(0, len(frames) - 1, n, dtype=int)
     return [frames[i] for i in indices]
