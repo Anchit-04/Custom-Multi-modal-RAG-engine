@@ -160,13 +160,12 @@ class BoundaryDetector:
         Add strong visual-only boundaries (e.g. hard scene cuts in silent video).
         Uses 1.5x the adaptive threshold to avoid false positives.
         """
-        high_threshold = threshold * 1.5
         dist_np = vis_dist.numpy()
         new: List[Boundary] = []
 
         for i in range(1, len(dist_np) - 1):
             if (
-                dist_np[i] > high_threshold
+                dist_np[i] > threshold
                 and dist_np[i] > dist_np[i - 1]
                 and dist_np[i] > dist_np[i + 1]
             ):
