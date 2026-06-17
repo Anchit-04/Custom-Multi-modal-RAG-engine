@@ -29,7 +29,7 @@ class UnifiedMultimodalEncoder(nn.Module):
 
         # ── Visual backbone (VideoMAE-Small, 384-d output) ──────────────
         self.visual_backbone = AutoModel.from_pretrained(
-            "MCG-NJU/videomae-small"
+            "MCG-NJU/videomae-small-finetuned-kinetics"
         )
         _freeze(self.visual_backbone)
 
