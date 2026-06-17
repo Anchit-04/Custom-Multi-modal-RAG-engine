@@ -14,7 +14,7 @@ class Config:
     whisper_model: str = "small"       # 1.5GB VRAM, good enough for timestamps
     
     # Encoding
-    frames_per_chunk: int = 8          # sampled uniformly from chunk duration
+    frames_per_chunk: int = 16         # sampled uniformly from chunk duration
     shared_dim: int = 512
     temporal_layers: int = 2
     temporal_heads: int = 8
