@@ -23,7 +23,7 @@ def get_videomae_extractor():
     global _videomae_extractor
     if _videomae_extractor is None:
         _videomae_extractor = AutoFeatureExtractor.from_pretrained(
-            "MCG-NJU/videomae-small"
+            "MCG-NJU/videomae-small-finetuned-kinetics"
         )
     return _videomae_extractor
 
