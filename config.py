@@ -10,7 +10,7 @@ class Config:
     min_chunk_sec: float = 3.0
     max_chunk_sec: float = 45.0
     overlap_sec: float = 2.0
-    semantic_threshold: float = 0.28   # cosine distance to confirm visual cut
+    min_semantic_threshold: float = 0.15   # cosine distance to confirm visual cut
     whisper_model: str = "small"       # 1.5GB VRAM, good enough for timestamps
     
     # Encoding
