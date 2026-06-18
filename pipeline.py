@@ -182,7 +182,7 @@ class Pipeline:
         from PIL import Image
 
         model, _, preprocess = open_clip.create_model_and_transforms(
-            "ViT-B-32", pretrained="openai"
+            "ViT-B-32-quickgelu", pretrained="openai"
         )
         model.eval()
         embeds = []
