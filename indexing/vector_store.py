@@ -1,4 +1,4 @@
-%%writefile /content/Custom-Multi-modal-RAG-engine/indexing/vector_store.py
+
 import uuid
 import numpy as np
 from typing import Dict, List, Optional, Any
