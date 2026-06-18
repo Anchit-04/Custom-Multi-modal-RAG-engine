@@ -172,8 +172,13 @@ class Pipeline:
         """
         Lightweight CLIP ViT-B/32 frame encoder used only for boundary
         detection. Loaded, used, and immediately freed.
+
+        Embeddings are L2-normalized so that downstream cosine-distance
+        boundary detection operates on unit vectors consistently — raw
+        open_clip encode_image() output is NOT normalized by default.
         """
         import open_clip
+        import torch.nn.functional as F
         from PIL import Image
 
         model, _, preprocess = open_clip.create_model_and_transforms(
@@ -185,6 +190,7 @@ class Pipeline:
             for frame in frames:
                 t = preprocess(Image.fromarray(frame)).unsqueeze(0)
                 e = model.encode_image(t)
+                e = F.normalize(e, p=2, dim=-1)
                 embeds.append(e.squeeze(0))
         del model
         gc.collect()
