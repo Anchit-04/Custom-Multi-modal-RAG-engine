@@ -1,3 +1,4 @@
+%%writefile /content/Custom-Multi-modal-RAG-engine/indexing/vector_store.py
 import uuid
 import numpy as np
 from typing import Dict, List, Optional, Any
@@ -8,6 +9,7 @@ from qdrant_client.models import (
     FieldCondition,
     Filter,
     MatchValue,
+    NamedVector,
     PointStruct,
     Range,
     ScalarQuantization,
@@ -62,7 +64,10 @@ class VectorStore:
         points = [
             PointStruct(
                 id=str(uuid.uuid4()),
-                vector={"visual": item["visual_vec"].tolist(), "audio": item["audio_vec"].tolist()},
+                vector={
+                    "visual": item["visual_vec"].tolist(),
+                    "audio": item["audio_vec"].tolist(),
+                },
                 payload={**item["payload"], "chunk_id": item["chunk_id"]},
             )
             for item in items
@@ -71,20 +76,26 @@ class VectorStore:
 
     def search(self, collection, query_vec, top_k=20, filters=None, vis_weight=0.6):
         q_filter = self._build_filter(filters)
-        vis_hits = self.client.search(
+        query_list = query_vec.tolist()
+
+        vis_hits = self.client.query_points(
             collection_name=collection,
-            query_vector=("visual", query_vec.tolist()),
+            query=query_list,
+            using="visual",
             limit=top_k,
             query_filter=q_filter,
             with_payload=True,
-        )
-        aud_hits = self.client.search(
+        ).points
+
+        aud_hits = self.client.query_points(
             collection_name=collection,
-            query_vector=("audio", query_vec.tolist()),
+            query=query_list,
+            using="audio",
             limit=top_k,
             query_filter=q_filter,
             with_payload=True,
-        )
+        ).points
+
         return self._merge_hits(vis_hits, aud_hits, vis_weight)
 
     def _merge_hits(self, vis_hits, aud_hits, vis_weight=0.6):
@@ -104,11 +115,17 @@ class VectorStore:
             return None
         conditions = []
         if "video_id" in filters:
-            conditions.append(FieldCondition(key="video_id", match=MatchValue(value=filters["video_id"])))
+            conditions.append(
+                FieldCondition(key="video_id", match=MatchValue(value=filters["video_id"]))
+            )
         if "start_gte" in filters:
-            conditions.append(FieldCondition(key="start_sec", range=Range(gte=filters["start_gte"])))
+            conditions.append(
+                FieldCondition(key="start_sec", range=Range(gte=filters["start_gte"]))
+            )
         if "end_lte" in filters:
-            conditions.append(FieldCondition(key="end_sec", range=Range(lte=filters["end_lte"])))
+            conditions.append(
+                FieldCondition(key="end_sec", range=Range(lte=filters["end_lte"]))
+            )
         if not conditions:
             return None
         return Filter(must=conditions)
