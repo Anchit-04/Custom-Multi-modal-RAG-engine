@@ -41,7 +41,7 @@ class UnifiedMultimodalEncoder(nn.Module):
 
         # ── Text backbone (CLIP ViT-B/32, 512-d output) ─────────────────
         clip_model, _, self.clip_preprocess = (
-            open_clip.create_model_and_transforms("ViT-B-32", pretrained="openai")
+            open_clip.create_model_and_transforms("ViT-B-32-quickgelu", pretrained="openai")
         )
         self.text_backbone = clip_model
         _freeze(self.text_backbone)
