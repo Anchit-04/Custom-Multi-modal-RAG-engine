@@ -23,7 +23,7 @@ from chunking.overlap_injector import inject_overlaps
 from encoding.encoder import UnifiedMultimodalEncoder
 from encoding.preprocessor import preprocess_frames, preprocess_audio
 from indexing.vector_store import VectorStore
-from indexing.hierarchical_index import HierarchicalIndex
+from indexing.hierarchal_index import HierarchicalIndex
 from retrieval.query_encoder import QueryEncoder
 from retrieval.retriever import Retriever
 from retrieval.reranker import Reranker
