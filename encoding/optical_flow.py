@@ -22,7 +22,7 @@ class OpticalFlowGate(nn.Module):
     entirely; for action scenes it boosts it.
     """
 
-    def __init__(self, shared_dim: int, num_frames: int = 8):
+    def __init__(self, shared_dim: int, num_frames: int = 16):
         super().__init__()
         self.shared_dim = shared_dim
         self.num_frames = num_frames
