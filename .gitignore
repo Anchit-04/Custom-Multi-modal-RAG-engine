@@ -1,0 +1,29 @@
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+.vite/
+*.local
+
+# Benchmark outputs (results are summarised in docs/BENCHMARKS.md)
+bench/results/
+
+# Local footage used for testing
+footage/
+
+# Leftovers from the Python version (see tag python-v1)
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+qdrant_store/
+data/
+
+# OS and editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local Claude Code settings
+.claude/
