@@ -11,8 +11,10 @@ shows:"person holding a phone" -screen:draft
 say:"thank you" NEAR/10 shows:logo
 ```
 
-> **Status: M0, scaffold.** The app starts, checks the device and picks a model
-> profile. Search lands in M1. See [the roadmap](#roadmap).
+> **Status: M1 in progress.** Add clips and they are transcribed in the browser
+> with word timings (Whisper base, 1.5× real time on an Intel UHD laptop GPU);
+> click any word to jump there. The search box goes live once `TextIndex` is
+> implemented. See [the roadmap](#roadmap).
 
 ## Why
 
